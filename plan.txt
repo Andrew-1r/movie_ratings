@@ -1,0 +1,14 @@
+TODO:
+- Setup API call, give name of movie, receive rating
+
+Steps to learning to create this:
+
+- Get html dynamically from a webpage
+-- do this across netflix, disney, paramount etc.
+
+- Send html to omdb api
+
+- Request from omdb api -> https://www.omdbapi.com/ (1000 daily limit)
+-- store title and rating on local db - IndexedDB
+
+- Modify / add to html on page to add omdb rating and colour next to movie title
