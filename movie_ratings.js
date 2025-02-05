@@ -8,7 +8,7 @@ let count = 0
 async function fetchMovieRating(movieTitle) {
   count += 1;
   console.log("FETCH MOVIE RATINGS", count)
-  if (count > 15) return { imdb: "69", rt: "69" };
+  if (count > 50) return { imdb: "7.2", rt: "69%" };
     
     const url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(movieTitle)}&r=json`;
 
@@ -19,11 +19,11 @@ async function fetchMovieRating(movieTitle) {
         if (data.Response === "True") {
             let imdbRating = data.Ratings.find(rating => rating.Source === "Internet Movie Database")?.Value || "N/A";
             let rottenTomatoesRating = data.Ratings.find(rating => rating.Source === "Rotten Tomatoes")?.Value || "N/A";
-            
-              // Remove "/10" from IMDb rating
-              if (imdbRating !== "N/A") {
-                imdbRating = imdbRating.split("/")[0]; // Keeps only the numeric part
-              }
+
+            // Trim IMDb ratings to remove "/10"
+            if (imdbRating !== "N/A") {
+              imdbRating = imdbRating.split("/")[0];
+            };
 
             return { imdb: imdbRating, rt: rottenTomatoesRating };
         }
@@ -31,7 +31,17 @@ async function fetchMovieRating(movieTitle) {
         console.error(`Error fetching ratings for ${movieTitle}:`, error);
     }
     
-    return { imdb: "na", rt: "na" };
+    return { imdb: "N/A", rt: "N/A" };
+}
+
+function getRatingColor(value, isPercentage = false) {
+  let numericValue = parseFloat(value);
+  
+  if (isNaN(numericValue)) return '#d3273e'; // Default color for invalid ratings
+
+  if (numericValue >= 80) return '#00bfb2';
+  if (numericValue >= 70) return '#ffc845';
+  return '#d3273e';
 }
 
 // Request title ratings, display them on screen, add them to cards
@@ -60,7 +70,6 @@ async function addMovieRatings(card) {
           position: 'absolute',
           top: '5px',
           right: '5px',
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
           color: 'white',
           padding: '4px',
           borderRadius: '5px',
@@ -71,14 +80,40 @@ async function addMovieRatings(card) {
           flexDirection: 'column',
           alignItems: 'center',
           textAlign: 'center',
-          width: `${card.getBoundingClientRect().width * 0.25}px`
+          width: `${card.getBoundingClientRect().width * 0.25}px`,
+          minHeight: '20px', // Keeps the overlay present even when empty
+          visibility: (ratings.imdb === "N/A" && ratings.rt === "N/A") ? 'hidden' : 'visible' // Hide if both are "N/A"
       });
 
-      // Add ratings to overlay
-      ratingOverlay.innerHTML = `
-          <div>IMDB: ${ratings.imdb}</div>
-          <div>RT: ${ratings.rt}</div>
-      `;
+      // Add ratings only if they exist
+      if (ratings.imdb !== "N/A") {
+        const imdbDiv = document.createElement('div');
+        imdbDiv.textContent = `${ratings.imdb}`;
+        Object.assign(imdbDiv.style, {
+            fontSize: '16px',
+            fontWeight: 'bold',
+            color: getRatingColor(ratings.imdb * 10),
+            backgroundColor: 'black',
+            padding: '2px 4px',
+            borderRadius: '4px',
+            marginBottom: '2px'
+        });
+        ratingOverlay.appendChild(imdbDiv);
+      }
+
+      if (ratings.rt !== "N/A") {
+        const rtDiv = document.createElement('div');
+        rtDiv.textContent = `${ratings.rt}`;
+        Object.assign(rtDiv.style, {
+            fontSize: '16px',
+            fontWeight: 'bold',
+            color: getRatingColor(ratings.rt.split("/")[0]),
+            backgroundColor: 'black',
+            padding: '2px 4px',
+            borderRadius: '4px'
+        });
+        ratingOverlay.appendChild(rtDiv);
+      }
 
       card.style.position = 'relative';
       
@@ -100,4 +135,4 @@ function checkForNewMovies() {
 }
 
 
-setInterval(checkForNewMovies, 3500);
+setInterval(checkForNewMovies, 3000);

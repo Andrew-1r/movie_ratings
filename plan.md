@@ -1,10 +1,5 @@
 # TODO:
-- each movie is calling API 9 different times
-    - processed movies set not used?
-
-- show rating of movie / tv show if found again in future slider
-
-- do not show rating if none is found
+- change coloyr based on ratings
 
 - use some sort of broswer storage - indexedDB?
 
