@@ -1,7 +1,9 @@
-TODO:
+# TODO:
 - Setup API call, give name of movie, receive rating
 
-Steps to learning to create this:
+- scrape movie title from netflix html
+
+# Steps to learning to create this:
 
 - Get html dynamically from a webpage
 -- do this across netflix, disney, paramount etc.
