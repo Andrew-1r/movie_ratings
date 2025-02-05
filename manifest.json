@@ -3,8 +3,16 @@
   "description": "Provide an overlay of movie ratings on streaming websites.",
   "version": "1.0",
   "manifest_version": 3,
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["*://www.netflix.com/*", "*://www.disneyplus.com/*", "*://www.stan.com.au/*"],
+  "content_scripts": [
+    {
+      "matches": ["*://www.netflix.com/*", "*://www.disneyplus.com/*", "*://www.stan.com.au/*"],
+      "js": ["movie_ratings.js"],
+      "run_at": "document_idle"
+    }
+  ],
   "action": {
-    "default_popup": "movie_ratings.html",
     "default_icon": "film_camera.png"
   }
 }
