@@ -7,7 +7,7 @@
   "host_permissions": ["*://www.netflix.com/*", "*://www.disneyplus.com/*", "*://www.stan.com.au/*"],
   "content_scripts": [
     {
-      "matches": ["*://www.netflix.com/*", "*://www.disneyplus.com/*", "*://www.stan.com.au/*"],
+      "matches": ["*://www.netflix.com/*", "*://www.disneyplus.com/*", "*://play.stan.com.au/*"],
       "js": ["movie_ratings.js"],
       "run_at": "document_idle"
     }

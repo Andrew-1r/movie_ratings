@@ -20,7 +20,7 @@ netflix games appear twice
 
 ```javascript
 // Select all title-card elements
-const titleCards = document.querySelectorAll('.programs_list');
+const titleCards = document.querySelectorAll('.programs__panel');
 
 // Loop through each title-card element and log the title and size
 titleCards.forEach(card => {
