@@ -1,3 +1,6 @@
+# TODO
+- sort out how often i go through all the title cards
+
 # What have I learned from the project so far
 - How to use javascript directly in browser using chrome dev tools to query web pages.
 
@@ -13,14 +16,14 @@
 must change titleCards to suit:
 netflix - .title-card
 stan - unsure maybe programs_item
-disney - ._2c21371 (has heaps of extra stuff near title)
+disney - ._2c21371 inside .xgfbc1v2?
 
 netflix games appear twice
 - implement half the string, if 1st half == 2nd half nevermind it?
 
 ```javascript
 // Select all title-card elements
-const titleCards = document.querySelectorAll('.programs__panel');
+const titleCards = document.querySelectorAll('._192jb2w7 ._2c2l371');
 
 // Loop through each title-card element and log the title and size
 titleCards.forEach(card => {

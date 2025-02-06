@@ -79,10 +79,7 @@ async function saveRating(title, ratings) {
  * @returns {Object} An object containing the IMDb and Rotten Tomatoes ratings or "N/A" if not found.
  */
 async function fetchMovieRating(movieTitle) {
-  //TODO delete after testing 
-  count +=1;
-  console.log("FETCHING MOVIE RATINGS", count)
-
+  
   const url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(movieTitle)}&r=json`;
 
   try {
@@ -132,6 +129,21 @@ function trimTitle(card) {
     return card.getAttribute('aria-label')?.trim() || card.textContent?.trim();
   } else if (website.includes('play.stan.com.au')) {
     return (card.getAttribute('aria-label')?.trim() || card.textContent?.trim()).split("(")[0];
+  } else if (website.includes('disneyplus.com')) {
+    let title = card.getAttribute('aria-label')?.trim() || card.textContent?.trim()
+
+    title = title.replace(/^Number \d+ /, '');
+    title = title.replace("STAR Original", '');
+    title = title.replace("Disney+ Original", '')
+    title = title.trim();
+    title = title.split("Select")[0];
+    title = title.split("STAR")[0];
+    title = title.split("Season")[0];
+    title = title.split("Rated")[0];
+    title = title.split("Disney+")[0];
+    title = title.trim();
+
+    return title;
   }
   return "";
 }
@@ -146,7 +158,8 @@ async function addMovieRatings(card, title) {
       let ratings = await getCachedRating(title);
 
       if (!ratings) {
-        console.log(`Fetching ratings for ${title}`);
+        count += 1;
+        console.log(`Fetching ratings for ${title}`, count);
         ratings = await fetchMovieRating(title);
         await saveRating(title, ratings); // Save to IndexedDB
       } else {
@@ -221,7 +234,7 @@ function checkForNewMovies() {
   //Some movies have (2009), (extended cut) etc. at the end, trim brackets
   if (website.includes('netflix.com')) {
     document.querySelectorAll('.title-card').forEach(card => {
-        const title = trimTitle(card)
+        const title = trimTitle(card);
 
         if (!title) return;
 
@@ -229,17 +242,25 @@ function checkForNewMovies() {
             addMovieRatings(card, title);
         }
     });
-  }
-
-  if (website.includes('play.stan.com.au')) {
+  } else if (website.includes('play.stan.com.au')) {
     document.querySelectorAll('.programs__panel').forEach(card => {
-        const title = trimTitle(card)
+        const title = trimTitle(card);
 
         if (!title) return;
 
         if (!card.querySelector('.rating-overlay')) {
             addMovieRatings(card, title);
         }
+    });
+  } else if (website.includes('disneyplus.com')) {
+    document.querySelectorAll('._192jb2w7 ._2c2l371').forEach(card => {
+      const title = trimTitle(card);
+
+      if (!title) return;
+      
+      if (!card.querySelector('.rating-overlay')) {
+          addMovieRatings(card, title);
+      }
     });
   }
 }
@@ -249,8 +270,9 @@ function checkForNewMovies() {
  */
 function observeMovieCards() {
   //TODO will need to have a different query selector for each streaming service
-  const targetNode = document.querySelector('.title-card-container') || document.body; // Adjust if needed
 
+  const targetNode = document.querySelector('.title-card-container') || document.querySelector('[data-testid="hero-carousel-shelf"]') || document.body; // TODO Test without title-card-container for netflix and stan
+  
   if (!targetNode) {
       console.warn("Target container not found, retrying...");
       setTimeout(observeMovieCards, 1000);
@@ -262,7 +284,7 @@ function observeMovieCards() {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
           checkForNewMovies();
-      }, 500); // Adjust debounce time as needed
+      }, 700); // Adjust debounce time as needed
   });
 
   observer.observe(targetNode, { childList: true, subtree: true });
