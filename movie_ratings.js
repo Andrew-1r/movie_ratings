@@ -1,6 +1,3 @@
-//TODO delete
-let count = 0;
-
 const apiKey = "4d0d9770"; //Free API key from ombdapi.com
 
 let dbInstance = null;
@@ -124,7 +121,6 @@ function getRatingColor(value) {
 //Double check this works
 function trimTitle(card) {
 
-  //TODO will need to add STAN logic here
   if (website.includes('netflix.com')) {
     return card.getAttribute('aria-label')?.trim() || card.textContent?.trim();
   } else if (website.includes('play.stan.com.au')) {
@@ -147,6 +143,9 @@ function trimTitle(card) {
   }
   return "";
 }
+
+//Kept it to track how many times API is called. Limit 1000 queries per day.
+let count = 0;
 
 /**
  * Adds movie ratings to a card element and displays them.
@@ -227,11 +226,7 @@ async function addMovieRatings(card, title) {
  * Checks all movie cards for ratings and adds them if missing.
  */
 function checkForNewMovies() {
-  //TODO will need to have a different for loop for each website
-  
-  //STAN is .programs__panel instead of .title-card
-  //Inside of .programs__container?
-  //Some movies have (2009), (extended cut) etc. at the end, trim brackets
+
   if (website.includes('netflix.com')) {
     document.querySelectorAll('.title-card').forEach(card => {
         const title = trimTitle(card);
@@ -269,9 +264,8 @@ function checkForNewMovies() {
  * Observes for new title card containers in the DOM and checks for new movies.
  */
 function observeMovieCards() {
-  //TODO will need to have a different query selector for each streaming service
 
-  const targetNode = document.querySelector('.title-card-container') || document.querySelector('[data-testid="hero-carousel-shelf"]') || document.body; // TODO Test without title-card-container for netflix and stan
+  const targetNode = document.querySelector('.title-card-container') || document.querySelector('[data-testid="hero-carousel-shelf"]') || document.body;
   
   if (!targetNode) {
       console.warn("Target container not found, retrying...");

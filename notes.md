@@ -1,6 +1,3 @@
-# TODO
-- sort out how often i go through all the title cards
-
 # What have I learned from the project so far
 - How to use javascript directly in browser using chrome dev tools to query web pages.
 
