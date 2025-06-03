@@ -1,4 +1,4 @@
-const apiKey = "4d0d9770"; //Free API key from ombdapi.com
+const apiKey = "<INSERT_API_KEY_HERE>"; //Free API key from ombdapi.com
 
 let dbInstance = null;
 
@@ -44,12 +44,12 @@ function openDB() {
 async function getCachedRating(title) {
   const db = await openDB();
   return new Promise((resolve) => {
-      const transaction = db.transaction("ratings", "readonly");
-      const store = transaction.objectStore("ratings");
-      const request = store.get(title);
+    const transaction = db.transaction("ratings", "readonly");
+    const store = transaction.objectStore("ratings");
+    const request = store.get(title);
 
-      request.onsuccess = () => resolve(request.result ? request.result.ratings : null);
-      request.onerror = () => resolve(null);
+    request.onsuccess = () => resolve(request.result ? request.result.ratings : null);
+    request.onerror = () => resolve(null);
   });
 }
 
@@ -62,11 +62,11 @@ async function getCachedRating(title) {
 async function saveRating(title, ratings) {
   const db = await openDB();
   return new Promise((resolve) => {
-      const transaction = db.transaction("ratings", "readwrite");
-      const store = transaction.objectStore("ratings");
-      store.put({ title, ratings });
+    const transaction = db.transaction("ratings", "readwrite");
+    const store = transaction.objectStore("ratings");
+    store.put({ title, ratings });
 
-      transaction.oncomplete = resolve;
+    transaction.oncomplete = resolve;
   });
 }
 
@@ -76,31 +76,31 @@ async function saveRating(title, ratings) {
  * @returns {Object} An object containing the IMDb and Rotten Tomatoes ratings or "N/A" if not found.
  */
 async function fetchMovieRating(movieTitle) {
-  
+
   const url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(movieTitle)}&r=json`;
 
   try {
-      const response = await fetch(url);
-      const data = await response.json();
+    const response = await fetch(url);
+    const data = await response.json();
 
-      if (data.Response === "True") {
-          let imdbRating = data.Ratings.find(rating => rating.Source === "Internet Movie Database")?.Value || "N/A";
-          let rottenTomatoesRating = data.Ratings.find(rating => rating.Source === "Rotten Tomatoes")?.Value || "N/A";
+    if (data.Response === "True") {
+      let imdbRating = data.Ratings.find(rating => rating.Source === "Internet Movie Database")?.Value || "N/A";
+      let rottenTomatoesRating = data.Ratings.find(rating => rating.Source === "Rotten Tomatoes")?.Value || "N/A";
 
-          // Trim IMDb ratings to remove "/10" and rt ratings to remove "%"
-          if (imdbRating !== "N/A") {
-            imdbRating = imdbRating.split("/")[0];
-          };
-          if (rottenTomatoesRating !== "N/A") {
-            rottenTomatoesRating = rottenTomatoesRating.split("%")[0];
-          };
+      // Trim IMDb ratings to remove "/10" and rt ratings to remove "%"
+      if (imdbRating !== "N/A") {
+        imdbRating = imdbRating.split("/")[0];
+      };
+      if (rottenTomatoesRating !== "N/A") {
+        rottenTomatoesRating = rottenTomatoesRating.split("%")[0];
+      };
 
-          return { imdb: imdbRating, rt: rottenTomatoesRating };
-      }
+      return { imdb: imdbRating, rt: rottenTomatoesRating };
+    }
   } catch (error) {
-      console.error(`Error fetching ratings for ${movieTitle}:`, error);
+    console.error(`Error fetching ratings for ${movieTitle}:`, error);
   }
-  
+
   return { imdb: "N/A", rt: "N/A" };
 }
 
@@ -111,7 +111,7 @@ async function fetchMovieRating(movieTitle) {
  */
 function getRatingColor(value) {
   let numericValue = parseFloat(value);
-  
+
   if (isNaN(numericValue)) return '#d3273e'; //Red
   if (numericValue >= 80) return '#00bfb2'; //Green
   if (numericValue >= 70) return '#ffc845'; //Yellow
@@ -154,72 +154,72 @@ let count = 0;
  */
 async function addMovieRatings(card, title) {
 
-      let ratings = await getCachedRating(title);
+  let ratings = await getCachedRating(title);
 
-      if (!ratings) {
-        count += 1;
-        console.log(`Fetching ratings for ${title}`, count);
-        ratings = await fetchMovieRating(title);
-        await saveRating(title, ratings); // Save to IndexedDB
-      } else {
-          console.log(`Using cached ratings for ${title}`);
-      }
+  if (!ratings) {
+    count += 1;
+    console.log(`Fetching ratings for ${title}`, count);
+    ratings = await fetchMovieRating(title);
+    await saveRating(title, ratings); // Save to IndexedDB
+  } else {
+    console.log(`Using cached ratings for ${title}`);
+  }
 
-      // Create the rating overlay container
-      const ratingOverlay = document.createElement('div');
-      ratingOverlay.classList.add('rating-overlay');
-      Object.assign(ratingOverlay.style, {
-          position: 'absolute',
-          top: '5px',
-          right: '5px',
-          color: 'white',
-          padding: '4px',
-          borderRadius: '5px',
-          fontSize: '12px',
-          zIndex: '1000',
-          pointerEvents: 'none',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center',
-          width: `${card.getBoundingClientRect().width * 0.25}px`,
-          minHeight: '20px', // Keeps the overlay present even when empty
-          visibility: (ratings.imdb === "N/A" && ratings.rt === "N/A") ? 'hidden' : 'visible' // Hide if both are "N/A"
-      });
+  // Create the rating overlay container
+  const ratingOverlay = document.createElement('div');
+  ratingOverlay.classList.add('rating-overlay');
+  Object.assign(ratingOverlay.style, {
+    position: 'absolute',
+    top: '5px',
+    right: '5px',
+    color: 'white',
+    padding: '4px',
+    borderRadius: '5px',
+    fontSize: '12px',
+    zIndex: '1000',
+    pointerEvents: 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    width: `${card.getBoundingClientRect().width * 0.25}px`,
+    minHeight: '20px', // Keeps the overlay present even when empty
+    visibility: (ratings.imdb === "N/A" && ratings.rt === "N/A") ? 'hidden' : 'visible' // Hide if both are "N/A"
+  });
 
-      // Add ratings only if they exist
-      if (ratings.imdb !== "N/A") {
-        const imdbDiv = document.createElement('div');
-        imdbDiv.textContent = `${ratings.imdb}`;
-        Object.assign(imdbDiv.style, {
-            fontSize: '16px',
-            fontWeight: 'bold',
-            color: getRatingColor(ratings.imdb * 10),
-            backgroundColor: 'black',
-            padding: '2px 4px',
-            borderRadius: '4px',
-            marginBottom: '2px'
-        });
-        ratingOverlay.appendChild(imdbDiv);
-      }
+  // Add ratings only if they exist
+  if (ratings.imdb !== "N/A") {
+    const imdbDiv = document.createElement('div');
+    imdbDiv.textContent = `${ratings.imdb}`;
+    Object.assign(imdbDiv.style, {
+      fontSize: '16px',
+      fontWeight: 'bold',
+      color: getRatingColor(ratings.imdb * 10),
+      backgroundColor: 'black',
+      padding: '2px 4px',
+      borderRadius: '4px',
+      marginBottom: '2px'
+    });
+    ratingOverlay.appendChild(imdbDiv);
+  }
 
-      if (ratings.rt !== "N/A") {
-        const rtDiv = document.createElement('div');
-        rtDiv.textContent = `${ratings.rt}%`;
-        Object.assign(rtDiv.style, {
-            fontSize: '16px',
-            fontWeight: 'bold',
-            color: getRatingColor(ratings.rt.split("%")[0]),
-            backgroundColor: 'black',
-            padding: '2px 4px',
-            borderRadius: '4px'
-        });
-        ratingOverlay.appendChild(rtDiv);
-      }
+  if (ratings.rt !== "N/A") {
+    const rtDiv = document.createElement('div');
+    rtDiv.textContent = `${ratings.rt}%`;
+    Object.assign(rtDiv.style, {
+      fontSize: '16px',
+      fontWeight: 'bold',
+      color: getRatingColor(ratings.rt.split("%")[0]),
+      backgroundColor: 'black',
+      padding: '2px 4px',
+      borderRadius: '4px'
+    });
+    ratingOverlay.appendChild(rtDiv);
+  }
 
-      card.style.position = 'relative';
-      
-      card.appendChild(ratingOverlay);
+  card.style.position = 'relative';
+
+  card.appendChild(ratingOverlay);
 }
 
 /**
@@ -229,32 +229,32 @@ function checkForNewMovies() {
 
   if (website.includes('netflix.com')) {
     document.querySelectorAll('.title-card').forEach(card => {
-        const title = trimTitle(card);
+      const title = trimTitle(card);
 
-        if (!title) return;
+      if (!title) return;
 
-        if (!card.querySelector('.rating-overlay')) {
-            addMovieRatings(card, title);
-        }
+      if (!card.querySelector('.rating-overlay')) {
+        addMovieRatings(card, title);
+      }
     });
   } else if (website.includes('play.stan.com.au')) {
     document.querySelectorAll('.programs__panel').forEach(card => {
-        const title = trimTitle(card);
+      const title = trimTitle(card);
 
-        if (!title) return;
+      if (!title) return;
 
-        if (!card.querySelector('.rating-overlay')) {
-            addMovieRatings(card, title);
-        }
+      if (!card.querySelector('.rating-overlay')) {
+        addMovieRatings(card, title);
+      }
     });
   } else if (website.includes('disneyplus.com')) {
     document.querySelectorAll('._192jb2w7 ._2c2l371').forEach(card => {
       const title = trimTitle(card);
 
       if (!title) return;
-      
+
       if (!card.querySelector('.rating-overlay')) {
-          addMovieRatings(card, title);
+        addMovieRatings(card, title);
       }
     });
   }
@@ -266,19 +266,19 @@ function checkForNewMovies() {
 function observeMovieCards() {
 
   const targetNode = document.querySelector('.title-card-container') || document.querySelector('[data-testid="hero-carousel-shelf"]') || document.body;
-  
+
   if (!targetNode) {
-      console.warn("Target container not found, retrying...");
-      setTimeout(observeMovieCards, 1000);
-      return;
+    console.warn("Target container not found, retrying...");
+    setTimeout(observeMovieCards, 1000);
+    return;
   }
 
   let timeout;
   const observer = new MutationObserver(() => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-          checkForNewMovies();
-      }, 700); // Adjust debounce time as needed
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      checkForNewMovies();
+    }, 700); // Adjust debounce time as needed
   });
 
   observer.observe(targetNode, { childList: true, subtree: true });
